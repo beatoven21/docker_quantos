@@ -1,0 +1,39 @@
+version: "3.3"
+
+services:
+  scheduler:
+    image: dask:latest
+    hostname: scheduler
+    ports:
+      - "8786:8786"
+      - "8787:8787"
+    command: ["dask", "scheduler"]
+    networks:
+      - dask
+      - flask-net
+    
+
+  worker:
+    image: dask:latest
+    command: ["dask", "worker", "scheduler:8786"]
+    deploy:
+      replicas: 1
+    networks:
+      - dask  
+      - flask-net
+  
+  flask_app:
+      image: flask_app:latest
+      hostname: flask_app
+      ports:
+        - "5000:5000"
+      networks:
+        - flask-net   
+        - dask
+      command: ["python", "app.py"] 
+
+  
+networks:
+  dask:
+  flask-net:
+   

@@ -1,0 +1,56 @@
+{% extends "home.html" %}
+{% block content %}
+{% if file_size %}
+<div>
+    {% if msg %}
+        <div style="background-color: AliceBlue; border: 1px solid #bfdefb; border-radius: 4px;
+                    width:100%; font-size:100%; margin-bottom:1%; padding-top:1%;
+                    padding-bottom:1%; padding-right: 1%;">
+            <div style="margin-left: 1%">
+                {{ msg }}
+            </div>
+        </div>
+    {% endif %}
+    <div class="row">
+        <div id="selectBox" class="col-sm-5">
+            <form action="/drop-columns" method="post" id="form">
+                <label for="dropColsSelect" style="width:100%; font-size: 85%; font-weight:bold;">
+                    Select variables to drop - press backspace to delete an entry
+                    <select id="dropColsSelect" name="dropCols" multiple style="width: 100%;">
+                        {% for column in columns %}
+                            <option>{{ column[0] }}: {{ column[1] }} ({{ column[2] }} uniques values)</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </form>
+        </div>
+        <div class="col-sm-1 d-flex align-items">
+                <button type="button" class="btn btn-outline-secondary" id="dropBtn"
+                        style="margin-left:20px; margin-top:10px; max-height:50px;" disabled>
+                    Drop
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="clearBtn"
+                        style="margin-left: 10px; margin-top: 10px; max-height:50px;" disabled>
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div style="width:100%; font-size:80%">
+        <table id="myTable" class="table table-striped" style="width:100%; display:none">
+          <thead>
+            <tr>
+              {% for column in df_columns %}
+                <th>{{ column }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+    </div>
+    <div id="plot1"></div>
+</div>
+{% endif %}
+{% endblock %}

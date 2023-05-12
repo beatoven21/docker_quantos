@@ -1,0 +1,63 @@
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus,  .navbar-nav > .active > a{
+    background-color: #178acc;
+    border-color: solid #178acc;
+}
+
+.tooltip > .tooltip-inner {
+    background-color: #e7f1ff;
+    color: #0c63e4;
+}
+
+.ticks {
+    display: flex;
+    justify-content: space-between;
+}
+
+.range{
+    position: relative;
+    width: 100%;
+}
+.range-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 17px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 13px;
+    background-color: #428bca;
+    color: white;
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.info-msg-span{
+ background-color: #f0f8ff;
+ border-style: solid;
+ border-color: #C4E1FB;
+ border-width: 1px;
+ border-radius:7px;
+ padding:8px;
+}
+
+.range {
+    position: relative;
+}
+
+#range_value1 {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+#range_value2 {
+    position: absolute;
+    top: -25px;
+    left: 45%;
+    font-size: 14px;
+    pointer-events: none;
+}

@@ -1,0 +1,21 @@
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2fa4e7;">
+    <ul class="navbar-nav">
+        <li class="nav-item {{'active' if active_page == 'data-upload'}}">
+            <a class="nav-link" style="color: white;" href="{{ 'data-upload' if active_page != 'data-upload' }}">
+                Data upload and processing
+            </a>
+        </li>
+        <li class="nav-item {{'active' if active_page == 'risk'}}">
+            <a class="nav-link" style="color: white;" href="risk">Re-identification risk</a>
+        </li>
+        <li class="nav-item {{'active' if active_page == 'statistics'}}">
+            <a class="nav-link" style="color: white;" href="{{ url_for('variables_statistics') }}">Statistics on the variables</a>
+        </li>
+        <li class="nav-item {{'active' if active_page == 'goodness-of-fit'}}">
+            <a class="nav-link" style="color: white;" href="goodness-of-fit">Goodness of fit</a>
+        </li>
+        <li class="nav-item {{'active' if active_page == 'sensitivity-analysis'}}">
+            <a class="nav-link" style="color: white;" href="sensitivity-analysis" style="">Sensitivity analysis</a>
+        </li>
+    </ul>
+</nav>

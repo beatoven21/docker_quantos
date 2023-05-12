@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>z90-030</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Datatable -->
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+    <body>
+    {% set active_page = 'goodness-of-fit' %}
+    {% include 'navbar.html' %}
+    {% if shape %}
+        <div class="container-fluid">
+            <div class="col-sm-8" role="main">
+                <br>
+                {% if xex|length >= 30 %}
+                <div id="plot4"></div>
+                <div style="background-color: #f5f5f5; color:#0962A7; border: 1px solid #e3e3e3; border-radius: 4px;
+                            width:100%; font-size:100%; margin-left:1%; margin-bottom:1%; padding-top:1%; padding-bottom:1%; padding-right: 1%;">
+                    <div style="margin-left: 1%">
+                        Parameters of the best-fitting Generalised Pareto Distribution:<br>
+                        <strong>Shape: {{ shape }}</strong><br>
+                        <strong>Scale: {{ scale }}</strong><br>
+                        The chart shows the probability that a risky combination of variables will have re-identification risk
+                        not higher than the risk indicated in the horizontal axis.<br>
+                        Risky combinations are those whose observed re-identification risk (see tab “Re-identification risk”)
+                        is among the {{ alpha }}% highest risks.<br>
+                        The black line represent the empirical cumulative probabilities, i.e., the proportion of risky combinations
+                        whose re-identification risk does not exceed the risk indicated in the horizontal axis.<br>
+                        The red line represents the theoretical cumulative probabilities that correspond to the best fitting
+                        Generalised Pareto Distribution. The distribution has been fitted on the logit transformation of the
+                        observed extreme risks.
+                    </div>
+                </div>
+                {% endif %}
+                <br>
+                <div id="plot5"></div>
+                <div style="background-color: #f5f5f5; color:#0962A7; border: 1px solid #e3e3e3; border-radius: 4px;
+                            width:100%; font-size:100%; margin-left:1%; margin-bottom:1%; padding-top:1%; padding-bottom:1%; padding-right: 1%;">
+                    <div style="margin-left: 1%">
+                        The chart shows the observed proportions of combinations of variables whose re-identification risk does
+                        not exceed the risk indicated in the horizontal axis.<br>
+                        The points where the two vertical lines meet the x-axis are the estimates of the re-identification
+                        risk of the dataset at {{ v1 }} 99% and 99.9% confidence level.
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <br>
+        <div class="container-fluid">
+            <div class="col-sm-8" role="main">
+                <div class="h-100 d-flex align-items-center justify-content-center"
+                     style="background-color: #f5f5f5;color:#0962A7; border: 1px solid #e3e3e3; border-radius: 4px;
+                            width:100%; font-size:100%; margin-left:1%; margin-bottom:1%; padding-top:1%; padding-bottom:1%;
+                            padding-right: 1%; text-align: center;">
+                    <div style="margin-left: 1%">
+                        Please estimate re-identification risk first
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <script type="text/javascript">
+    var graphs4 = {{graphJSON4 | safe}};
+    Plotly.newPlot('plot4', graphs4.data, graphs4.layout, {displayModeBar: false, responsive: true});
+    </script>
+    <script type="text/javascript">
+    var graphs5 = {{graphJSON5 | safe}};
+    Plotly.newPlot('plot5', graphs5.data, graphs5.layout, {displayModeBar: false, responsive: true});
+    </script>
+    </body>
+</html>

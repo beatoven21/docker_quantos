@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>z90-030</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Datatable -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+</head>
+    <body>
+    {% set active_page = 'data-upload' %}
+    {% include 'navbar.html' %}
+    <br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+                <img src="../static/images/Quantos_Logo.jpg" style="width: 160px; height: 70px">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-4" style="min-width: 430px;">
+                <div class='accordion' id="myAccordion" style="width: 80%">
+                    <div class="accordion-item">
+                        <h5 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Load Data
+                            </button>
+                        </h5>
+                          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#myAccordion">
+                              <div class="accordion-body">
+                                    <form method="post" enctype=multipart/form-data>
+                                        <label class="form-label">
+                                            <h6>Load .csv or .xlsx file</h6>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="inputGroupFile"
+                                                   aria-label="Upload" name="uploadedFile" accept=".csv,.xlsx" onchange="clearUploadInfo(); this.form.submit(); $('#loading').show();
+                                                   $('#loadingMsg').show(); $('#UploadMsg').show(); updateProgress(); ">
+<!--                                            <button class="btn btn-outline-primary" type="submit"-->
+<!--                                                    id="inputGroupFileAddon" onclick="$('#loading').show();-->
+<!--                                                   $('#loadingMsg').show(); $('#UploadMsg').show(); updateProgress();">-->
+<!--                                                Upload-->
+<!--                                            </button>-->
+                                        </div>
+                                        <div id="filenameDiv">
+                                            {% if file_size %}
+                                                <span style="font-size:95%">Selected file name: {{ session.get('filename') }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="container">
+                                            <br>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="hasHeader"
+                                                        value="True" id="flexCheckChecked" checked>
+                                                <label class="form-check-label" for="flexCheckChecked">
+                                                    <span>The file contains headers</span>
+                                                </label>
+                                            </div>
+                                            <br>
+                                            <div class="row" id="uploadInfoDiv">
+                                                {% if file_size %}
+                                                    <span class="info-msg-span">File successfully uploaded<br>
+                                                        <div style="font-size:80%">
+                                                            <strong>{{ num_of_rows }} observations,
+                                                                {{ num_of_cols }} variables.<br>
+                                                                Size = {{ file_size }}<br>
+                                                            </strong>
+                                                        </div>
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <div class="row justify-content-between">
+                                            <div class="col-sm-7">
+                                                <h6>
+                                                    Variables with a number of distinct values equal to or greater than
+                                                    this percentage of the number of rows will not be uploaded
+                                                </h6>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">
+                                                    Cut-off value(%)
+                                                </label>
+                                                <input type="number" value="100" min="50" max="100" step="5"
+                                                       class="form-control" id="cutOffInput" name="cutOff">
+                                            </div>
+                                        </div>
+                                        <br>
+                                    </form>
+                              </div>
+                          </div>
+                      </div>
+                        <div class="accordion-item">
+                            <h5 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Anonymize data
+                                </button>
+                            </h5>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#myAccordion">
+                                <div class="accordion-body">
+                                    <form method="POST">
+                                        <div class="row justify-content-between">
+                                            <div class="col-sm-9">
+                                                <h6>
+                                                    It is advisable to implement k-anonymization in each separate variable of the uploaded dataset.
+                                                    Please specify a positive integer value for k.
+                                                </h6>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input type="number" value="3" min="1" max="5" step="1" class="form-control"
+                                                    name="kAnonymization" id="amountInput">
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-sm-9">
+                                                <button class="btn btn-outline-primary {{ anonymize_btn }}" type="submit"
+                                                        id="anonymizeBtn" name="anonymizeBtn"
+                                                        onclick="$('#loading').show(); $('#loadingMsg').show();
+                                                            $('#AnonymizeMsg').show(); updateProgress();">
+                                                    Anonymize
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                      <div class="accordion-item">
+                          <h5 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Estimate re-identification risk
+                            </button>
+                        </h5>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#myAccordion">
+                            <div class="accordion-body">
+                                <form method="POST">
+                                    <div class="row" data-bs-toggle="tooltip" data-bs-placement="right"
+                                         data-bs-offset="10,20"
+                                         title="Please select the size of the combinations of variables on which the
+                                         re-identification risk estimation will be based.">
+                                        <label for="customRange2" class="form-label">
+                                            Size of tuple (p)
+                                        </label>
+                                        <br>
+                                        <br>
+                                        <div class="range">
+                                            <input type="range" class="form-range" min="2" max="4" value="3"
+                                                   id="customRange2" name="tupleSize" onchange="calc_slider({{ num_of_cols }}, this.value)"
+                                                   oninput="updateRangeValue(this.value, 3, 2, 4)">
+                                            <div class="ticks">
+                                                {% for i in range(2, 5) %}
+                                                <span style="font-size:75%; float: right;">{{ i }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="range-value" id="range_value1">3</div>
+                                            <br>
+                                            <div><span id="slider_result" style="font-size:100%">Number of tuples of the selected size: {{ plets}}</span></div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row" data-bs-toggle="tooltip" data-bs-placement="right"
+                                         data-bs-offset="10,20"
+                                         title="The combinations of variables are ranked in decreasing order of
+                                         riskiness. The specific percentage of riskiest combinations is retained and
+                                         the estimation of re-identifications risk is based on their data">
+                                            <label for="customRange3" class="form-label">
+                                                Percentage (%) of variable combinations to retain as riskiest ones
+                                            </label>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <div class="range">
+                                                <input type="range" class="form-range" min="1" max="10" value="5"
+                                                       id="customRange3" name="riskiestPercentage" oninput="updateRangeValuePercent(this.value, 5, 1, 10)">
+                                                <div class="ticks">
+                                                    {% for i in range(1, 11) %}
+                                                    <span class="tick" style="font-size:75%; float: right;">{{ i }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="range-value" id="range_value2">5</div>
+                                            </div>
+                                    </div>
+                                    <br>
+                                    <div class="col-sm-9">
+                                        <button class="btn btn-outline-primary {{ submit_btn }}" type="submit"
+                                                id="identificationBtn" name="submitBtn"
+                                                onclick="$('#loading').show(); $('#loadingMsg').show();
+                                                         $('#RiskMsg').show();updateProgress();">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+            </div>
+            <div class="col-sm-8">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div id="loadingMsg" class="alert alert-info" style="display: none; position: fixed; bottom: 0; left: 0;
+                                                                 opacity: 0.9; background-color: #f5f5f5;
+                                                                 color: #0962A7; border: 1px
+                                                                 solid #e3e3e3; border-radius: 4px; width: 30%;
+                                                                 font-size: 100%; margin-left: 1%; margin-bottom: 1%;
+                                                                 padding-top: 1%;
+                                                                 padding-bottom: 1%; padding-right: 1%;" role="alert">
+                <div id="loading" class="progress" style="display: none; height: 12px; width:100%;">
+                    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                         style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <div id="RiskMsg" style="display: none; color: black; padding-top: 1%;">
+                    <strong>Calculating vector of risks</strong><br>
+                    Please wait...
+                </div>
+                <div id="AnonymizeMsg" style="display: none; color: black; padding-top: 1%;">
+                    <strong>Anonymizing</strong><br>
+                    Please wait...
+                </div>
+                <div id="UploadMsg" style="display: none; color: black; padding-top: 1%;">
+                    <strong>Uploading</strong><br>
+                    Please wait...
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+            integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+            integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Get the column names from the HTML table
+            var column_names = $('#myTable th').map(function () {
+                return $(this).text();
+            }).get();
+
+            // Build the columns array dynamically
+            var columns = column_names.map(function (name) {
+                return {data: name};
+            });
+
+            $('#myTable').DataTable({
+                ajax: {
+                    url: '/get_page_content',
+                    dataSrc: 'data'
+                },
+                serverSide: true,
+                columns: columns,
+                deferRender: true,
+                initComplete: function(settings, json) {
+                    $('#myTable').show();
+                }
+            });
+        });
+    </script>
+    <!-- The following JS code enables all tooltips in the document -->
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl, {
+            delay: {"show": 500},
+            trigger: 'hover'
+          });
+        });
+    </script>
+    <script>
+    function product_Range(a,b) {
+      var prd = a,i = a;
+
+      while (i++< b) {
+        prd*=i;
+      }
+      return prd;
+    };
+    function combinations(n, r)
+    {
+      if (n==r || r==0)
+      {
+        return 1;
+      }
+      else
+      {
+        r=(r < n-r) ? n-r : r;
+        return product_Range(r+1, n)/product_Range(1,n-r);
+      }
+    };
+
+    function calc_slider(num_of_cols, slider_val) {
+       let result = combinations(num_of_cols, slider_val);
+       document.getElementById('slider_result').innerText = 'Number of tuples of the selected size: ' + result.toLocaleString();
+    };
+
+    function clearUploadInfo() {
+        var uploadInfoDiv = document.getElementById("uploadInfoDiv");
+        var filenameDiv = document.getElementById("filenameDiv");
+        uploadInfoDiv.innerHTML = "";
+        filenameDiv.innerHTML = "";
+    }
+    </script>
+
+    <script>
+    function updateRangeValue(currentValue, initialValue, minValue, maxValue) {
+        var range = document.getElementById('customRange2');
+        var valueElement = document.getElementById('range_value1');
+        var rangeWidth = range.offsetWidth;
+        var thumbWidth = 16;
+
+        // Calculate the position of the value element based on the current value and the range width
+        var position = ((currentValue - minValue) / (maxValue - minValue)) * rangeWidth;
+        position = Math.min(Math.max(position, 0), rangeWidth - thumbWidth);
+
+        // Update the position and text content of the value element
+        valueElement.style.left = (position +10) + 'px';
+        valueElement.textContent = currentValue;
+    }
+
+    function updateRangeValuePercent(currentValue, initialValue, minValue, maxValue) {
+        var range = document.getElementById('customRange3');
+        var valueElement = document.getElementById('range_value2');
+        var rangeWidth = range.offsetWidth;
+        var thumbWidth = 16;
+
+        // Calculate the position of the value element based on the current value and the range width
+        var position = ((currentValue - minValue) / (maxValue - minValue)) * rangeWidth;
+        position = Math.min(Math.max(position, 0), rangeWidth - thumbWidth);
+
+        // Update the position and text content of the value element
+        valueElement.style.left = (position +10) + 'px';
+        valueElement.textContent = currentValue;
+    }
+    </script>
+
+    <!-- JS for the select box -->
+    <script src="{{ url_for('static', filename='js/select.js') }}"></script>
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <script type="text/javascript">
+        var graphs = {{graphJSON | safe}};
+        Plotly.newPlot('plot1', graphs.data, graphs.layout, {displayModeBar: false, responsive: true});
+    </script>
+    <script src="{{ url_for('static', filename='js/progressUpdate.js') }}"></script>
+    </body>
+</html>

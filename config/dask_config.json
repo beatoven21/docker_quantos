@@ -1,0 +1,6 @@
+
+{
+  "scheduler_port": 8786,
+  "scheduler_ip": "scheduler",
+  "n_partitions": 1
+}
